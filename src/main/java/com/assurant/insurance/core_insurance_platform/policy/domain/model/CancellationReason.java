@@ -8,7 +8,7 @@ public class CancellationReason {
         this.reason = Objects.requireNonNull(reason, "Cancellation reason is required");
     }
 
-    public String reason(){
+    public String getReason(){
         return reason;
     }
 

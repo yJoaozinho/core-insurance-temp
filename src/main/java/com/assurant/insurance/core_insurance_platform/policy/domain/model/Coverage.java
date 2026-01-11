@@ -11,11 +11,11 @@ public class Coverage {
         this.description = Objects.requireNonNull(description, "Coverage description is required.");
     }
 
-    public UUID id(){
+    public UUID GetCoverageId(){
         return id;
     }
 
-    String description(){
+    public String getDescription(){
         return description;
     }
 }

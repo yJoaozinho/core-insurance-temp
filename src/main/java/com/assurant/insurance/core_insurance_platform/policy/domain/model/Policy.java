@@ -6,16 +6,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import com.assurant.insurance.core_insurance_platform.policy.domain.event.DomainEvent;
+import com.assurant.insurance.core_insurance_platform.policy.domain.event.PolicyActivated;
+import com.assurant.insurance.core_insurance_platform.policy.domain.event.PolicyCancelled;
+import com.assurant.insurance.core_insurance_platform.policy.domain.event.PolicyCreated;
+
+
 
 public class Policy {
 
     private final PolicyId id;
-
+    private final PolicyHolderId holderId;
     private PolicyStatus status;
     private final List<Coverage> coverages;
     private final Premium premium;
-
-    // ---- Audit fields (business-relevant) ----
+    private final List<DomainEvent> domainEvents = new ArrayList<>();
     private final LocalDateTime createdAt;
     private LocalDateTime activatedAt;
     private LocalDateTime cancelledAt;
@@ -23,9 +28,9 @@ public class Policy {
     private CancellationReason cancellationReason;
     private LocalDate cancellationDate;
 
-    public Policy(PolicyId id, List<Coverage> coverages, Premium premium) {
+    public Policy(PolicyId id,PolicyHolderId holderId, List<Coverage> coverages, Premium premium) {
         this.id = Objects.requireNonNull(id, "PolicyId is required");
-
+        this.holderId = Objects.requireNonNull(holderId, "PolicyHolderId is required");
         if (coverages == null || coverages.isEmpty()) {
             throw new IllegalArgumentException("Policy must have at least one coverage");
         }
@@ -35,6 +40,7 @@ public class Policy {
 
         this.status = PolicyStatus.DRAFT;
         this.createdAt = LocalDateTime.now();
+        this.domainEvents.add(new PolicyCreated(id, holderId));
     }
 
     // ---- Behavior ----
@@ -46,6 +52,7 @@ public class Policy {
 
         this.status = PolicyStatus.ACTIVE;
         this.activatedAt = LocalDateTime.now();
+        this.domainEvents.add(new PolicyActivated(this.id));
     }
 
     public void cancel(CancellationReason reason, LocalDate cancellationDate) {
@@ -53,14 +60,25 @@ public class Policy {
             throw new IllegalStateException("Only ACTIVE policies can be cancelled");
         }
 
-        this.cancellationReason = Objects.requireNonNull(reason, "Cancellation reason is required");
-        this.cancellationDate = Objects.requireNonNull(cancellationDate, "Cancellation date is required");
-
         this.status = PolicyStatus.CANCELLED;
+        this.cancellationReason = reason;
+        this.cancellationDate = cancellationDate;
         this.cancelledAt = LocalDateTime.now();
+
+        this.domainEvents.add(
+                new PolicyCancelled(this.id, reason, cancellationDate)
+        );
     }
 
     // ---- Query methods (safe exposure) ----
+
+    public void clearDomainEvents() {
+        this.domainEvents.clear();
+    }
+
+    public List<DomainEvent> domainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
 
     public PolicyId id() {
         return id;

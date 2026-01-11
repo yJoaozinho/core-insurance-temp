@@ -15,7 +15,7 @@ public class PolicyId {
         return new PolicyId(UUID.randomUUID());
     }
 
-    public UUID value(){
+    public UUID getPolicyID(){
         return value;
     }
 
