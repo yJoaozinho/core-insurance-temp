@@ -1,39 +1,39 @@
 package com.assurant.insurance.core_insurance_platform.policy.infrastructure.persistence.repository;
 
-import com.assurant.insurance.core_insurance_platform.policy.domain.model.Policy;
-import com.assurant.insurance.core_insurance_platform.policy.domain.model.PolicyId;
+import com.assurant.insurance.core_insurance_platform.policy.domain.model.*;
 import com.assurant.insurance.core_insurance_platform.policy.domain.repository.PolicyRepository;
 import com.assurant.insurance.core_insurance_platform.policy.infrastructure.persistence.SpringDataPolicyRepository;
-import com.assurant.insurance.core_insurance_platform.policy.infrastructure.persistence.entity.PolicyEntity;
+import com.assurant.insurance.core_insurance_platform.policy.infrastructure.persistence.entity.*;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Repository
 public class JpaPolicyRepository implements PolicyRepository {
 
-    private final SpringDataPolicyRepository repository;
+    private final SpringDataPolicyRepository springDataRepository;
 
-    public JpaPolicyRepository(SpringDataPolicyRepository repository) {
-        this.repository = repository;
+    public JpaPolicyRepository(SpringDataPolicyRepository springDataRepository) {
+        this.springDataRepository = springDataRepository;
     }
 
     @Override
     public void save(Policy policy) {
         PolicyEntity entity = toEntity(policy);
-        repository.save(entity);
+        springDataRepository.save(entity);
     }
 
     @Override
     public Optional<Policy> findById(PolicyId id) {
-        return repository.findById(id.value())
-                .map(this::toDomain);
+        return springDataRepository.findById(id.value()).map(this::toDomain);
     }
 
     @Override
     public boolean existsById(PolicyId id) {
-        return false;
+        return springDataRepository.existsById(id.value());
     }
-
-    // ---------------- mapping ----------------
 
     private PolicyEntity toEntity(Policy policy) {
         PolicyEntity entity = new PolicyEntity();
@@ -50,21 +50,30 @@ public class JpaPolicyRepository implements PolicyRepository {
             entity.setCancellationDate(policy.cancellationDate());
         }
 
+        for (Coverage cov : policy.coverages()) {
+            CoverageEntity covEntity = new CoverageEntity();
+            covEntity.setId(cov.GetCoverageId());
+            covEntity.setDescription(cov.getDescription());
+            entity.addCoverage(covEntity);
+        }
         return entity;
     }
 
     private Policy toDomain(PolicyEntity entity) {
+        List<Coverage> coverages = entity.getCoverages().stream()
+                .map(c -> Coverage.rehydrate(c.getId(), c.getDescription()))
+                .collect(Collectors.toList());
+
         return Policy.rehydrate(
                 new PolicyId(entity.getId()),
                 new PolicyHolderId(entity.getHolderId()),
                 entity.getStatus(),
+                coverages,
                 new Premium(entity.getPremiumAmount()),
                 entity.getCreatedAt(),
                 entity.getActivatedAt(),
                 entity.getCancelledAt(),
-                entity.getCancellationReason() != null
-                        ? new CancellationReason(entity.getCancellationReason())
-                        : null,
+                entity.getCancellationReason() != null ? new CancellationReason(entity.getCancellationReason()) : null,
                 entity.getCancellationDate()
         );
     }

@@ -9,7 +9,7 @@ public class PolicyHolderId {
         this.value = Objects.requireNonNull(value, "PolicyHolderId cannot be null");
     }
 
-    public UUID getPolicyHolderId() {
+    public UUID value() {
         return value;
     }
 

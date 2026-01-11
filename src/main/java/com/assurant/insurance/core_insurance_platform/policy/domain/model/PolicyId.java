@@ -3,32 +3,35 @@ package com.assurant.insurance.core_insurance_platform.policy.domain.model;
 import java.util.Objects;
 import java.util.UUID;
 
-public class PolicyId {
-
+public final class PolicyId { // final: ninguém herda dela
     private final UUID value;
 
-    public PolicyId(UUID value){
+    public PolicyId(UUID value) {
+        // O ID já nasce validado. Nunca existirá um PolicyId nulo no seu sistema.
         this.value = Objects.requireNonNull(value, "PolicyId cannot be null");
     }
 
-    public static PolicyId newID(){
-        return new PolicyId(UUID.randomUUID());
-    }
-
-    public UUID getPolicyID(){
+    // O metodo "janela" que conversamos para o JPA conseguir ler
+    public UUID value() {
         return value;
     }
 
+    // OBRIGATÓRIO em Value Objects: Comparar por valor, não por endereço de memória
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if(!(o instanceof PolicyId)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         PolicyId policyId = (PolicyId) o;
-        return value.equals(policyId.value);
+        return Objects.equals(value, policyId.value);
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(value);
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
     }
 }
