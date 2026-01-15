@@ -18,7 +18,7 @@ public class CreatePolicyUseCase {
 
     public PolicyId execute(CreatePolicyCommand command){
 
-        PolicyId policyId = new PolicyId(UUID.fromString(command.policyId()));
+        PolicyId policyId = new PolicyId(UUID.randomUUID());
 
 
         if(policyRepository.existsById(policyId)){

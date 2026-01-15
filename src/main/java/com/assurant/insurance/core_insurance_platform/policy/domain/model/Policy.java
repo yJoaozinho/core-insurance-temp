@@ -72,12 +72,25 @@ public class Policy {
 
         this.status = PolicyStatus.CANCELLED;
         this.cancellationReason = reason;
-        this.cancellationDate = cancellationDate;
+        this.cancellationDate = date;
         this.cancelledAt = LocalDateTime.now();
 
         this.domainEvents.add(
-                new PolicyCancelled(this.id, reason, cancellationDate)
+                new PolicyCancelled(this.id, cancellationReason, cancellationDate)
         ); }
+
+    public Coverage addCoverage(String description) {
+        if (status != PolicyStatus.DRAFT) {
+            throw new IllegalStateException("Cannot add coverage to non-draft policy");
+        }
+
+        // Usamos o construtor público: ele gera o UUID da cobertura sozinho
+        Coverage coverage = new Coverage(description);
+
+        this.coverages.add(coverage);
+        return coverage;
+    }
+
     public List<DomainEvent> domainEvents() { return Collections.unmodifiableList(domainEvents); }
     public PolicyId id() { return id; }
     public PolicyHolderId holderId() { return holderId; }

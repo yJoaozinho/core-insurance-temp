@@ -20,16 +20,16 @@ public class DummyDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Criando os dados de domínio
+
         PolicyId policyId = new PolicyId(UUID.randomUUID());
         PolicyHolderId holderId = new PolicyHolderId(UUID.randomUUID());
 
         List<Coverage> coverages = List.of(
-                new Coverage("Incêndio"),
+                new Coverage("Alagamento"),
                 new Coverage("Roubo")
         );
 
-        Premium premium = new Premium(new BigDecimal("1500.00"));
+        Premium premium = new Premium(new BigDecimal("1400.00"));
 
         // 2. Criando a Entidade de Domínio
         Policy policy = new Policy(policyId, holderId, coverages, premium);

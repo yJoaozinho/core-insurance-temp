@@ -2,7 +2,6 @@ package com.assurant.insurance.core_insurance_platform.policy.infrastructure.per
 
 import com.assurant.insurance.core_insurance_platform.policy.domain.model.*;
 import com.assurant.insurance.core_insurance_platform.policy.domain.repository.PolicyRepository;
-import com.assurant.insurance.core_insurance_platform.policy.infrastructure.persistence.SpringDataPolicyRepository;
 import com.assurant.insurance.core_insurance_platform.policy.infrastructure.persistence.entity.*;
 import org.springframework.stereotype.Repository;
 
