@@ -7,16 +7,16 @@ public class Premium {
 
     private final BigDecimal amount;
 
-    public Premium (BigDecimal amount) {
+    public Premium(BigDecimal amount) {
         Objects.requireNonNull(amount, "Premium amount cannot be null.");
-
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Premium must be greater than zero.");
         }
         this.amount = amount;
     }
 
-    public BigDecimal amount(){
+
+    public BigDecimal value() {
         return amount;
     }
 

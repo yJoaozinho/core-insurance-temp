@@ -39,7 +39,7 @@ public class JpaPolicyRepository implements PolicyRepository {
         entity.setId(policy.id().value());
         entity.setHolderId(policy.holderId().value());
         entity.setStatus(policy.status());
-        entity.setPremiumAmount(policy.premium().amount());
+        entity.setPremiumAmount(policy.premium().value());
         entity.setCreatedAt(policy.createdAt());
         entity.setActivatedAt(policy.activatedAt());
         entity.setCancelledAt(policy.cancelledAt());
