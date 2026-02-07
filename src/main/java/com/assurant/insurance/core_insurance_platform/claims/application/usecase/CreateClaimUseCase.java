@@ -27,27 +27,23 @@ public class CreateClaimUseCase {
 
     public ClaimId execute(CreateClaimCommand command) {
 
-        // 1. Buscar policy
-        PolicyId policyId = new PolicyId(UUID.fromString(command.policyId()));
-        Policy policy = policyRepository.findById(policyId)
-                .orElseThrow(() -> new IllegalStateException("Policy not found"));
+        Policy policy = policyRepository.findById(
+                new PolicyId(UUID.fromString(command.policyId()))
+        ).orElseThrow(() ->
+                new IllegalStateException("Policy not found")
+        );
 
-        // 2. Criar snapshot da policy
         PolicySnapshot snapshot = PolicySnapshot.from(policy);
 
-        // 3. Criar claim via domínio
-        ClaimId claimId = ClaimId.generate();
         Claim claim = Claim.submit(
-                claimId,
+                new ClaimId(UUID.randomUUID()),
                 snapshot,
                 new ClaimAmount(command.amount())
         );
 
-        // 4. Persistir
         claimRepository.save(claim);
 
-        // 5. Retornar id
-        return claimId;
+        return claim.id();
     }
 
 }
